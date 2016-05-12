@@ -30,9 +30,11 @@ This repository contains a simple (and very initial) example of using angular-un
 6. Open your browser on `http://localhost:3000/app`
 
 ##Links
-[Angular-Universal](https://github.com/angular/universal)
-[J2V8](https://github.com/eclipsesource/J2V8)
-[Spark-Java](http://sparkjava.com/)
+- [Angular-Universal](https://github.com/angular/universal)
+- [J2V8](https://github.com/eclipsesource/J2V8)
+- [Spark-Java](http://sparkjava.com/)
+- [Angular 2 Universal starter kit](https://github.com/angular/universal-starter)
 
 ###Thanks and credits
-Special thanks to @irbull for the great J2V8 library and he's support.
+- The Angular-Universal-related files are based on Angular 2 Universal starter kit with very small modifications
+- Special thanks to @irbull for the great J2V8 library and he's help.
