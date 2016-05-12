@@ -19,6 +19,7 @@ This repository contains a simple (and very initial) example of using angular-un
 - x64 Linux (tested on ubuntu 16.04)
 - Java 8
 - Maven
+- NPM
  
 ##Running Instructions
 1. Clone the repository
