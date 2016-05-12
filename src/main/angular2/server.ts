@@ -1,8 +1,6 @@
 import 'angular2-universal/polyfills';
 
 import * as path from 'path';
-import * as express from 'express';
-import * as bodyParser from 'body-parser';
 
 // Angular 2 Universal
 import {
@@ -20,8 +18,9 @@ import {
 // Application
 import {App} from './app/app.component';
 
-
-const ROOT = path.join(path.resolve(__dirname, '..'));
+interface IRenderCallback {
+    (result:string, requestId:number):void;
+}
 
 enableProdMode();
 
@@ -51,10 +50,10 @@ class JavaNativeAPI {
 	return config;
   }
 
-  public render(url: string, callback:(content:string)=>any) {
+  public render(url: string, callback:IRenderCallback, requestId: number) {
 	expressEngine(this.indexPath, 
-			      this.createRendringConfiguration(url),
-                  (_, result) => callback(result));
+                      this.createRendringConfiguration(url),
+                      (_, result) => callback(result, requestId));
   }
 
 }

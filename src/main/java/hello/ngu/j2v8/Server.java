@@ -6,8 +6,7 @@
 package hello.ngu.j2v8;
 
 import com.google.gson.Gson;
-import static hello.ngu.j2v8.Configuration.WEB_PORT;
-import static hello.ngu.j2v8.Configuration.WEB_PUBLIC_PATH;
+import static hello.ngu.j2v8.Configuration.*;
 import hello.ngu.j2v8.render.UniversalRenderer;
 import java.io.File;
 import java.io.IOException;
@@ -22,7 +21,7 @@ public class Server {
     public static void main(String[] args) throws IOException {
         port(WEB_PORT);
         Gson gson = new Gson();
-        UniversalRenderer renderer = new UniversalRenderer(new File(Configuration.NG2_SERVER_BUNDLE_PATH));
+        UniversalRenderer renderer = new UniversalRenderer(new File(NG2_SERVER_BUNDLE_PATH), 4);
         renderer.start();
         renderer.startLiveReload();
         staticFiles.externalLocation(WEB_PUBLIC_PATH);

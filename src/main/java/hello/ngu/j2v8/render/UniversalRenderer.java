@@ -22,34 +22,34 @@ import java.util.logging.Logger;
  */
 public class UniversalRenderer implements Closeable {
 
-    private UniversalRendringEngine handler;
+    private UniversalRenderingEnginesPool renderers;
     private Thread liveReloader = null;
     private File serverBundlePath;
+    private final int numEngines;
 
-    public UniversalRenderer(File serverBundlePath) {
+    public UniversalRenderer(File serverBundlePath, int numEngines) {
         this.serverBundlePath = serverBundlePath;
+        this.numEngines = numEngines;
     }
 
     public CompletableFuture<String> render(String url) {
-        UniversalRendringRequest request = new UniversalRendringRequest(url);
-        handler.addRendringRequest(request);
-        return request.getResult();
+        return renderers.submit(url);
     }
 
     public void start() {
-        if (handler != null) {
+        if (renderers != null) {
             throw new IllegalStateException("already started");
         }
 
-        handler = new UniversalRendringEngine(serverBundlePath);
-        new Thread(handler).start();
+        renderers = new UniversalRenderingEnginesPool(numEngines, serverBundlePath);
+        renderers.start();
     }
 
     @Override
     public void close() throws IOException {
         try {
-            handler.stop();
-            handler = null;
+            renderers.stop();
+            renderers = null;
         } catch (InterruptedException ex) {
             throw new IOException("interrupted while stopping render engine", ex);
         }

@@ -11,12 +11,12 @@ import java.util.concurrent.CompletableFuture;
  *
  * @author bennyl
  */
-public class UniversalRendringRequest {
+public class UniversalRenderingRequest {
 
     private final String url;
     private final CompletableFuture<String> result;
 
-    public UniversalRendringRequest(String url) {
+    public UniversalRenderingRequest(String url) {
         this.url = url;
         this.result = new CompletableFuture<>();
     }
