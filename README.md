@@ -27,7 +27,7 @@ This repository contains a simple (and very initial) example of using angular-un
 3. Build the java server(`mvn clean package`)
 4. Build&Watch angular-universal + angular client side code (`npm run watch`)
 5. Execute the java server (`mvn -e exec:java -Dexec.mainClass="hello.ngu.j2v8.Server"`)
-6. Open your browser on `http://localhost:3000/app`
+6. Open your browser on `http://localhost:3000/app/`
 
 ##Links
 - [Angular-Universal](https://github.com/angular/universal)
