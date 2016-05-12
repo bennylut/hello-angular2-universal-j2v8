@@ -6,14 +6,16 @@ This repository contains a simple (and very initial) example of using angular-un
 - Serving both the application and other rest endpoint from java using sparkjava
 - Basic live-reload support for the universal server build 
 - Linux x64 only
+- Multi-Node (each in its own thread) rendring
 
-##Missing:
+##TODO:
 - Fetch J2V8 from maven central
 - Support other platforms
 - Extracting internal implementation details from the angular-universal `server.js` and expose a proper API instead.
-- Support for rendering multiple requests at once (currently the render is done one request at a time - this can be easly fixed)
+- ~~Support for rendering multiple requests at once~~
 - Performance tests 
 - Documentation and code-cleanup
+- Remove express dependency (currently the angular2-express-engine is used for rendring)
 - Etc..
 
 ##Requirements
