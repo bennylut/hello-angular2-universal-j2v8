@@ -5,6 +5,7 @@ This repository contains a simple (and very initial) example of using angular-un
 - Rendring using angular universal from java using J2V8
 - Serving both the application and other rest endpoint from java using sparkjava
 - Basic live-reload support for the universal server build 
+- Linux x64 only
 
 ##Missing:
 - Fetch J2V8 from maven central
