@@ -13,6 +13,7 @@ This repository contains a simple (and very initial) example of using angular-un
 - Extracting internal implementation details from the angular-universal `server.js` and expose a proper API instead.
 - Support for rendering multiple requests at once (currently the render is done one request at a time - this can be easly fixed)
 - Performance tests 
+- Documentation and code-cleanup
 - Etc..
 
 ##Requirements
