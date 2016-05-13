@@ -11,12 +11,13 @@ This repository contains a simple (and very initial) example of using angular-un
 ##TODO:
 - Fetch J2V8 from maven central
 - Support other platforms
-- Extracting internal implementation details from the angular-universal `server.js` and expose a proper API instead.
+- ~~Extracting internal implementation details from the angular-universal `server.js` and expose a proper API instead.~~
 - ~~Support for rendering multiple requests at once~~
 - Performance tests 
 - Documentation and code-cleanup
-- Remove express dependency (currently the angular2-express-engine is used for rendring)
-- Etc..
+- ~~Remove express dependency (currently the angular2-express-engine is used for rendring)~~
+- Orginize project structure
+- Implement a more complex application
 
 ##Requirements
 - x64 Linux (tested on ubuntu 16.04)
