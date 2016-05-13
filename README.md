@@ -18,6 +18,7 @@ This repository contains a simple (and very initial) example of using angular-un
 - ~~Remove express dependency (currently the angular2-express-engine is used for rendring)~~
 - Orginize project structure
 - Implement a more complex application
+- Model the Bootstrap configuration object in java in order to remove the need for server.js completely
 
 ##Requirements
 - x64 Linux (tested on ubuntu 16.04)
