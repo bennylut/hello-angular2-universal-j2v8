@@ -18,7 +18,7 @@ This repository contains a simple (and very initial) example of using angular-un
 - Orginize project structure
 - Implement a more complex client side application
 - Check if can model the bootstrap configuration object in java in order to remove the need for server.js completely 
-- Cleanup and improvement of the JavaEngine (currently almost blindly based on the expressEngine)
+- ~~Cleanup and improvement of the JavaEngine (currently almost blindly based on the expressEngine)~~
 - ~~Remove the direct gson dependency~~
 - ~~Expose the cache through configuration~~
 - ~~Make the configuration object api fluid~~
