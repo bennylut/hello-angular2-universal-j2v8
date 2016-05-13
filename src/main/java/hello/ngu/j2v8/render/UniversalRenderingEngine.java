@@ -9,9 +9,8 @@ import com.eclipsesource.v8.NodeJS;
 import com.eclipsesource.v8.V8;
 import com.eclipsesource.v8.V8Array;
 import com.eclipsesource.v8.V8Object;
+import com.google.gson.Gson;
 import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -30,29 +29,36 @@ public class UniversalRenderingEngine implements Runnable {
 
     private BlockingQueue<UniversalRenderingRequest> requestsQueue;
     private ConcurrentMap<Integer, UniversalRenderingRequest> runningRequests = new ConcurrentHashMap<>();
+    private Gson gson;
 
     private NodeJS node;
     private V8 v8;
 
     private V8Object api;
     private V8Object renderedCallback;
+    private V8Object v8jsonParser;
 
     private Thread executingThread;
 
-    private File serverBundleFile;
-    private String index;
-
     private AtomicInteger nextRequestId = new AtomicInteger(0);
+    private final UniversalRenderConfiguration conf;
 
-    public UniversalRenderingEngine(File serverBundleFile, String index) {
-        this(serverBundleFile, index, new LinkedBlockingQueue<>());
+    public UniversalRenderingEngine(
+            UniversalRenderConfiguration conf,
+            Gson gson) {
+
+        this(conf, gson, new LinkedBlockingQueue<>());
 
     }
 
-    public UniversalRenderingEngine(File serverBundleFile, String index, BlockingQueue<UniversalRenderingRequest> requestsQueue) {
-        this.serverBundleFile = serverBundleFile;
+    public UniversalRenderingEngine(
+            UniversalRenderConfiguration conf,
+            Gson gson,
+            BlockingQueue<UniversalRenderingRequest> requestsQueue) {
+
         this.requestsQueue = requestsQueue;
-        this.index = index;
+        this.conf = conf;
+        this.gson = gson;
     }
 
     @Override
@@ -70,19 +76,29 @@ public class UniversalRenderingEngine implements Runnable {
                 }
 
                 if (req == KILL_SIGNAL) {
+                    System.out.println("received kill signal");
                     return;
                 }
 
                 if (req != null) {
                     int requestId = nextRequestId.incrementAndGet();
                     runningRequests.put(requestId, req);
-                    V8Array array = new V8Array(v8);
-                    array.push(req.getUrl());
-                    array.push(requestId);
-                    array.push(renderedCallback);
-                    api.executeVoidFunction("render", array);
 
-                    array.release();
+                    V8Array params = new V8Array(v8);
+                    params.push(gson.toJson(req.getKey()));
+                    V8Object requestKey = v8jsonParser.executeObjectFunction("parse", params);
+                    params.release();
+
+                    params = new V8Array(v8);
+                    try {
+                        params.push(requestKey);
+                        params.push(requestId);
+                        params.push(renderedCallback);
+                        api.executeVoidFunction("render", params);
+                    } finally {
+                        params.release();
+                        requestKey.release();
+                    }
 
                 }
 
@@ -110,6 +126,7 @@ public class UniversalRenderingEngine implements Runnable {
     private void closeNode() {
         api.release();
         renderedCallback.release();
+        v8jsonParser.release();
         node.release();
     }
 
@@ -117,16 +134,18 @@ public class UniversalRenderingEngine implements Runnable {
 
         node = NodeJS.createNodeJS();
         v8 = node.getRuntime();
+        v8jsonParser = v8.getObject("JSON");
 
         v8.registerJavaMethod((V8Object receiver, V8Array parameters) -> {
             api = parameters.getObject(0);
             V8Array clientHtml = new V8Array(v8);
-            clientHtml.push(index);
+            clientHtml.push(conf.getIndexTemplate());
             api.executeVoidFunction("setClientHtml", clientHtml);
             clientHtml.release();
+
         }, "registerJavaEngine");
 
-        node.require(serverBundleFile.getAbsoluteFile()).release();
+        node.require(conf.getUniversalServerBundlePath()).release();
 
         v8.registerJavaMethod((received, params) -> {
             V8Object exception = params.getObject(0);

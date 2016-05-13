@@ -13,11 +13,11 @@ import java.util.concurrent.CompletableFuture;
  */
 public class UniversalRenderingRequest {
 
-    private final String url;
+    private final Object key;
     private final CompletableFuture<String> result;
 
-    public UniversalRenderingRequest(String url) {
-        this.url = url;
+    public UniversalRenderingRequest(Object url) {
+        this.key = url;
         this.result = new CompletableFuture<>();
     }
 
@@ -25,8 +25,8 @@ public class UniversalRenderingRequest {
         return result;
     }
 
-    public String getUrl() {
-        return url;
+    public Object getKey() {
+        return key;
     }
 
 }

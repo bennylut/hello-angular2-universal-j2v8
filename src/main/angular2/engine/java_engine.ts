@@ -9,7 +9,7 @@ export interface IRenderCallback {
 }
 
 export interface IBootloaderConfigProvider {
-    (url:string):BootloaderConfig;
+    (requestInfo:any):BootloaderConfig;
 }
 
 export class JavaEngine {
@@ -25,8 +25,8 @@ export class JavaEngine {
         this._clientHtml = clientHtml;
     }
 
-    public render(url: string, renderId:number, callback:IRenderCallback) {
-        let options = this._bootloaderConfigProvider(url) || <BootloaderConfig>{};
+    public render(requestInfo: any, renderId:number, callback:IRenderCallback) {
+        let options = this._bootloaderConfigProvider(requestInfo) || <BootloaderConfig>{};
         options.providers = options.providers || undefined;
         options.preboot = options.preboot || undefined;
 

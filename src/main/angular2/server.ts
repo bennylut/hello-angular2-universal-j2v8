@@ -20,9 +20,14 @@ import {App} from './app/app.component';
 
 enableProdMode();
 
-JavaEngine.connect((requestUrl:string) => {
+interface IExampleRequestInfo {
+    url:string;
+}
+
+JavaEngine.connect((reqInfo:IExampleRequestInfo) => {
     let baseUrl = '/';
-    let url = requestUrl || '/';
+
+    let url = reqInfo.url;
 
     let config:BootloaderConfig = {
         directives: [App],

@@ -8,8 +8,8 @@ package hello.ngu.j2v8.render;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
+import com.google.gson.Gson;
 import java.io.Closeable;
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -28,37 +28,35 @@ public class UniversalRenderer implements Closeable {
 
     private UniversalRenderingEnginesPool renderers;
     private Thread liveReloader = null;
-    private File serverBundlePath;
-    private final int numEngines;
-    private final String index;
-    private LoadingCache<String, CompletableFuture<String>> renderCache = null;
+    private LoadingCache<Object, CompletableFuture<String>> renderCache = null;
+    private final UniversalRenderConfiguration conf;
+    private final Gson gson;
 
-    public UniversalRenderer(File serverBundlePath, String index, int numEngines) {
-        this.serverBundlePath = serverBundlePath;
-        this.numEngines = numEngines;
-        this.index = index;
+    public UniversalRenderer(UniversalRenderConfiguration conf, Gson gson) {
+        this.conf = conf;
+        this.gson = gson;
     }
 
-    public void useUrlCache() {
+    public void useCache() {
         this.renderCache = CacheBuilder.newBuilder()
                 .maximumSize(1000)
-                .build(new CacheLoader<String, CompletableFuture<String>>() {
-                    public CompletableFuture<String> load(String url) throws Exception {
-                        return renderers.submit(url);
+                .build(new CacheLoader<Object, CompletableFuture<String>>() {
+                    public CompletableFuture<String> load(Object key) throws Exception {
+                        return renderers.submit(key);
                     }
                 });
     }
 
-    public CompletableFuture<String> render(String url) {
+    public CompletableFuture<String> render(Object key) {
         if (renderCache != null) {
             try {
-                return renderCache.get(url);
+                return renderCache.get(key);
             } catch (ExecutionException ex) {
                 //this should never happen
                 throw new RuntimeException(ex);
             }
         }
-        return renderers.submit(url);
+        return renderers.submit(key);
     }
 
     public void start() {
@@ -66,7 +64,7 @@ public class UniversalRenderer implements Closeable {
             throw new IllegalStateException("already started");
         }
 
-        renderers = new UniversalRenderingEnginesPool(numEngines, serverBundlePath, index);
+        renderers = new UniversalRenderingEnginesPool(conf, gson);
         renderers.start();
     }
 
@@ -77,7 +75,7 @@ public class UniversalRenderer implements Closeable {
             renderers = null;
             if (this.renderCache != null) {
                 //reset the cache
-                this.useUrlCache();
+                this.useCache();
             }
 
         } catch (InterruptedException ex) {
@@ -90,7 +88,7 @@ public class UniversalRenderer implements Closeable {
             throw new IllegalStateException("live reload already started");
         }
 
-        Path bundle = serverBundlePath.toPath();
+        Path bundle = conf.getUniversalServerBundlePath().toPath();
 
         liveReloader = new Thread(() -> {
             try {

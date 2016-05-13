@@ -5,7 +5,7 @@
  */
 package hello.ngu.j2v8.render;
 
-import java.io.File;
+import com.google.gson.Gson;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -19,12 +19,12 @@ public class UniversalRenderingEnginesPool {
     private UniversalRenderingEngine[] engines;
     private BlockingQueue<UniversalRenderingRequest> requestsQueue;
 
-    public UniversalRenderingEnginesPool(int numEngines, File serverBundleFile, String index) {
-        this.engines = new UniversalRenderingEngine[numEngines];
+    public UniversalRenderingEnginesPool(UniversalRenderConfiguration conf, Gson gson) {
+        this.engines = new UniversalRenderingEngine[conf.getNumEngines()];
         this.requestsQueue = new LinkedBlockingQueue<>();
 
-        for (int i = 0; i < numEngines; i++) {
-            this.engines[i] = new UniversalRenderingEngine(serverBundleFile, index, requestsQueue);
+        for (int i = 0; i < conf.getNumEngines(); i++) {
+            this.engines[i] = new UniversalRenderingEngine(conf, gson, requestsQueue);
         }
     }
 
@@ -45,8 +45,8 @@ public class UniversalRenderingEnginesPool {
 
     }
 
-    public CompletableFuture<String> submit(String url) {
-        final UniversalRenderingRequest request = new UniversalRenderingRequest(url);
+    public CompletableFuture<String> submit(Object key) {
+        final UniversalRenderingRequest request = new UniversalRenderingRequest(key);
         requestsQueue.add(request);
         return request.getResult();
     }
