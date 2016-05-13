@@ -2,11 +2,12 @@
 This repository contains a simple (and very initial) example of using angular-universal with java backend using J2V8.
 
 ##Supported:
-- Rendring using angular universal from java using J2V8
+- Rendering using angular universal from java using J2V8
 - Serving both the application and other rest endpoint from java using sparkjava
 - Basic live-reload support for the universal server build 
 - Linux x64 only
 - Multi-Node (each in its own thread) rendring
+- Very basic url based cache for increasing performance 
 
 ##TODO:
 - Fetch J2V8 from maven central
@@ -18,7 +19,8 @@ This repository contains a simple (and very initial) example of using angular-un
 - ~~Remove express dependency (currently the angular2-express-engine is used for rendring)~~
 - Orginize project structure
 - Implement a more complex application
-- Model the Bootstrap configuration object in java in order to remove the need for server.js completely
+- Check if can model the bootstrap configuration object in java in order to remove the need for server.js completely 
+- Extend the configuration api (and cache) to receive the whole request instead of just the url
 
 ##Requirements
 - x64 Linux (tested on ubuntu 16.04)
