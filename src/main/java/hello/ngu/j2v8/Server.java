@@ -9,7 +9,6 @@ import com.google.gson.Gson;
 import static hello.ngu.j2v8.Configuration.*;
 import hello.ngu.j2v8.render.UniversalRenderer;
 import java.io.IOException;
-import java.util.Objects;
 import static spark.Spark.*;
 
 /**
@@ -21,11 +20,10 @@ public class Server {
     public static void main(String[] args) throws IOException {
         Gson gson = new Gson();
 
-        UniversalRenderer renderer = new UniversalRenderer(createUniversalRenderConfiguration(), gson);
+        UniversalRenderer renderer = new UniversalRenderer(createUniversalRenderConfiguration(gson));
 
         renderer.start();
         renderer.startLiveReload();
-        renderer.useCache();
 
         port(WEB_PORT);
         staticFiles.externalLocation(WEB_PUBLIC_PATH);
@@ -52,6 +50,10 @@ public class Server {
 
     }
 
+    /**
+     * this object will get cached so it must implement the {@link #hashCode()}
+     * and {@link #equals(java.lang.Object)} methods.
+     */
     public static final class ExampleRequestInfo {
 
         public String url;

@@ -30,16 +30,16 @@ public class UniversalRenderer implements Closeable {
     private Thread liveReloader = null;
     private LoadingCache<Object, CompletableFuture<String>> renderCache = null;
     private final UniversalRenderConfiguration conf;
-    private final Gson gson;
 
-    public UniversalRenderer(UniversalRenderConfiguration conf, Gson gson) {
+    public UniversalRenderer(UniversalRenderConfiguration conf) {
         this.conf = conf;
-        this.gson = gson;
+        if (conf.usingCache()) {
+            resetCache();
+        }
     }
 
-    public void useCache() {
-        this.renderCache = CacheBuilder.newBuilder()
-                .maximumSize(1000)
+    private void resetCache() {
+        this.renderCache = CacheBuilder.newBuilder().maximumSize(conf.cacheSize())
                 .build(new CacheLoader<Object, CompletableFuture<String>>() {
                     public CompletableFuture<String> load(Object key) throws Exception {
                         return renderers.submit(key);
@@ -64,7 +64,7 @@ public class UniversalRenderer implements Closeable {
             throw new IllegalStateException("already started");
         }
 
-        renderers = new UniversalRenderingEnginesPool(conf, gson);
+        renderers = new UniversalRenderingEnginesPool(conf);
         renderers.start();
     }
 
@@ -74,8 +74,7 @@ public class UniversalRenderer implements Closeable {
             renderers.stop();
             renderers = null;
             if (this.renderCache != null) {
-                //reset the cache
-                this.useCache();
+                this.resetCache();
             }
 
         } catch (InterruptedException ex) {
@@ -88,7 +87,7 @@ public class UniversalRenderer implements Closeable {
             throw new IllegalStateException("live reload already started");
         }
 
-        Path bundle = conf.getUniversalServerBundlePath().toPath();
+        Path bundle = conf.universalServerBundlePath().toPath();
 
         liveReloader = new Thread(() -> {
             try {
@@ -110,9 +109,7 @@ public class UniversalRenderer implements Closeable {
                     }
                 }
 
-            } catch (IOException ex) {
-                Logger.getLogger(UniversalRenderer.class.getName()).log(Level.SEVERE, null, ex);
-            } catch (InterruptedException ex) {
+            } catch (IOException | InterruptedException ex) {
                 Logger.getLogger(UniversalRenderer.class.getName()).log(Level.SEVERE, null, ex);
             }
         });

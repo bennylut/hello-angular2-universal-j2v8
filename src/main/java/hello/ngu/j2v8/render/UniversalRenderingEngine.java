@@ -29,7 +29,6 @@ public class UniversalRenderingEngine implements Runnable {
 
     private BlockingQueue<UniversalRenderingRequest> requestsQueue;
     private ConcurrentMap<Integer, UniversalRenderingRequest> runningRequests = new ConcurrentHashMap<>();
-    private Gson gson;
 
     private NodeJS node;
     private V8 v8;
@@ -44,21 +43,17 @@ public class UniversalRenderingEngine implements Runnable {
     private final UniversalRenderConfiguration conf;
 
     public UniversalRenderingEngine(
-            UniversalRenderConfiguration conf,
-            Gson gson) {
-
-        this(conf, gson, new LinkedBlockingQueue<>());
+            UniversalRenderConfiguration conf) {
+        this(conf, new LinkedBlockingQueue<>());
 
     }
 
     public UniversalRenderingEngine(
             UniversalRenderConfiguration conf,
-            Gson gson,
             BlockingQueue<UniversalRenderingRequest> requestsQueue) {
 
         this.requestsQueue = requestsQueue;
         this.conf = conf;
-        this.gson = gson;
     }
 
     @Override
@@ -85,7 +80,7 @@ public class UniversalRenderingEngine implements Runnable {
                     runningRequests.put(requestId, req);
 
                     V8Array params = new V8Array(v8);
-                    params.push(gson.toJson(req.getKey()));
+                    params.push(conf.jsonRenderer().render(req.getKey()));
                     V8Object requestKey = v8jsonParser.executeObjectFunction("parse", params);
                     params.release();
 
@@ -139,13 +134,13 @@ public class UniversalRenderingEngine implements Runnable {
         v8.registerJavaMethod((V8Object receiver, V8Array parameters) -> {
             api = parameters.getObject(0);
             V8Array clientHtml = new V8Array(v8);
-            clientHtml.push(conf.getIndexTemplate());
+            clientHtml.push(conf.template());
             api.executeVoidFunction("setClientHtml", clientHtml);
             clientHtml.release();
 
         }, "registerJavaEngine");
 
-        node.require(conf.getUniversalServerBundlePath()).release();
+        node.require(conf.universalServerBundlePath()).release();
 
         v8.registerJavaMethod((received, params) -> {
             V8Object exception = params.getObject(0);

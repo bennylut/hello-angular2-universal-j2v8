@@ -19,12 +19,12 @@ public class UniversalRenderingEnginesPool {
     private UniversalRenderingEngine[] engines;
     private BlockingQueue<UniversalRenderingRequest> requestsQueue;
 
-    public UniversalRenderingEnginesPool(UniversalRenderConfiguration conf, Gson gson) {
-        this.engines = new UniversalRenderingEngine[conf.getNumEngines()];
+    public UniversalRenderingEnginesPool(UniversalRenderConfiguration conf) {
+        this.engines = new UniversalRenderingEngine[conf.numEngines()];
         this.requestsQueue = new LinkedBlockingQueue<>();
 
-        for (int i = 0; i < conf.getNumEngines(); i++) {
-            this.engines[i] = new UniversalRenderingEngine(conf, gson, requestsQueue);
+        for (int i = 0; i < conf.numEngines(); i++) {
+            this.engines[i] = new UniversalRenderingEngine(conf, requestsQueue);
         }
     }
 
