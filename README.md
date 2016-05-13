@@ -7,20 +7,20 @@ This repository contains a simple (and very initial) example of using angular-un
 - Basic live-reload support for the universal server build 
 - Linux x64 only
 - Multi-Node (each in its own thread) rendring
-- Very basic url based cache for increasing performance 
+- Java level cache for increasing performance (using the cache assumes that the render function is pure)
 
 ##TODO:
 - Fetch J2V8 from maven central
 - Support other platforms
-- ~~Extracting internal implementation details from the angular-universal `server.js` and expose a proper API instead.~~
-- ~~Support for rendering multiple requests at once~~
 - Performance tests 
 - Documentation and code-cleanup
-- ~~Remove express dependency (currently the angular2-express-engine is used for rendring)~~
 - Orginize project structure
-- Implement a more complex application
+- Implement a more complex client side application
 - Check if can model the bootstrap configuration object in java in order to remove the need for server.js completely 
-- Extend the configuration api (and cache) to receive the whole request instead of just the url
+- Cleanup and improvement of the JavaEngine (currently almost blindly based on the expressEngine)
+- Remove the direct gson dependency 
+- Expose the cache through configuration
+- Make the configuration object api fluid
 
 ##Requirements
 - x64 Linux (tested on ubuntu 16.04)
