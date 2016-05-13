@@ -8,6 +8,7 @@ package hello.ngu.j2v8;
 import com.google.gson.Gson;
 import static hello.ngu.j2v8.Configuration.*;
 import hello.ngu.j2v8.render.UniversalRenderer;
+import static hello.ngu.j2v8.util.IOUtil.consumeTextResource;
 import java.io.File;
 import java.io.IOException;
 import static spark.Spark.*;
@@ -19,15 +20,22 @@ import static spark.Spark.*;
 public class Server {
 
     public static void main(String[] args) throws IOException {
-        port(WEB_PORT);
         Gson gson = new Gson();
-        UniversalRenderer renderer = new UniversalRenderer(new File(NG2_SERVER_BUNDLE_PATH), 4);
+
+        String index = consumeTextResource(INDEX_HTML_RESOURCE_PATH);
+        UniversalRenderer renderer = new UniversalRenderer(
+                new File(NG2_SERVER_BUNDLE_PATH),
+                index,
+                NUM_RENDERING_ENGINES);
+
         renderer.start();
         renderer.startLiveReload();
+
+        port(WEB_PORT);
         staticFiles.externalLocation(WEB_PUBLIC_PATH);
 
         get("/app/*", (req, res) -> {
-            return renderer.render(req.pathInfo()).get();
+            return renderer.render(req.pathInfo()).get(); //TODO: switch to async once spark will add support
         });
 
         get("/data.json", (req, res) -> {

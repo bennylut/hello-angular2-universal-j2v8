@@ -26,10 +26,12 @@ public class UniversalRenderer implements Closeable {
     private Thread liveReloader = null;
     private File serverBundlePath;
     private final int numEngines;
+    private final String index;
 
-    public UniversalRenderer(File serverBundlePath, int numEngines) {
+    public UniversalRenderer(File serverBundlePath, String index, int numEngines) {
         this.serverBundlePath = serverBundlePath;
         this.numEngines = numEngines;
+        this.index = index;
     }
 
     public CompletableFuture<String> render(String url) {
@@ -41,7 +43,7 @@ public class UniversalRenderer implements Closeable {
             throw new IllegalStateException("already started");
         }
 
-        renderers = new UniversalRenderingEnginesPool(numEngines, serverBundlePath);
+        renderers = new UniversalRenderingEnginesPool(numEngines, serverBundlePath, index);
         renderers.start();
     }
 

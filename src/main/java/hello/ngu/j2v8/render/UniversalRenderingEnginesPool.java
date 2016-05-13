@@ -19,12 +19,12 @@ public class UniversalRenderingEnginesPool {
     private UniversalRenderingEngine[] engines;
     private BlockingQueue<UniversalRenderingRequest> requestsQueue;
 
-    public UniversalRenderingEnginesPool(int numEngines, File serverBundleFile) {
+    public UniversalRenderingEnginesPool(int numEngines, File serverBundleFile, String index) {
         this.engines = new UniversalRenderingEngine[numEngines];
         this.requestsQueue = new LinkedBlockingQueue<>();
 
         for (int i = 0; i < numEngines; i++) {
-            this.engines[i] = new UniversalRenderingEngine(serverBundleFile, requestsQueue);
+            this.engines[i] = new UniversalRenderingEngine(serverBundleFile, index, requestsQueue);
         }
     }
 
@@ -36,8 +36,13 @@ public class UniversalRenderingEnginesPool {
 
     public void stop() throws InterruptedException {
         for (UniversalRenderingEngine e : engines) {
-            e.stop();
+            requestsQueue.add(UniversalRenderingEngine.KILL_SIGNAL);
         }
+
+        for (UniversalRenderingEngine e : engines) {
+            e.join();
+        }
+
     }
 
     public CompletableFuture<String> submit(String url) {

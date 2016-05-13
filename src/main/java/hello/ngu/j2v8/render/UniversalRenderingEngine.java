@@ -10,6 +10,8 @@ import com.eclipsesource.v8.V8;
 import com.eclipsesource.v8.V8Array;
 import com.eclipsesource.v8.V8Object;
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -24,29 +26,33 @@ import java.util.logging.Logger;
  */
 public class UniversalRenderingEngine implements Runnable {
 
-    private static final UniversalRenderingRequest KILL_SIGNAL = new UniversalRenderingRequest(null);
+    public static final UniversalRenderingRequest KILL_SIGNAL = new UniversalRenderingRequest(null);
 
     private BlockingQueue<UniversalRenderingRequest> requestsQueue;
     private ConcurrentMap<Integer, UniversalRenderingRequest> runningRequests = new ConcurrentHashMap<>();
 
     private NodeJS node;
     private V8 v8;
-    private V8Object api;
 
+    private V8Object api;
     private V8Object renderedCallback;
+
     private Thread executingThread;
 
     private File serverBundleFile;
+    private String index;
 
     private AtomicInteger nextRequestId = new AtomicInteger(0);
 
-    public UniversalRenderingEngine(File serverBundleFile) {
-        this(serverBundleFile, new LinkedBlockingQueue<>());
+    public UniversalRenderingEngine(File serverBundleFile, String index) {
+        this(serverBundleFile, index, new LinkedBlockingQueue<>());
+
     }
 
-    public UniversalRenderingEngine(File serverBundleFile, BlockingQueue<UniversalRenderingRequest> requestsQueue) {
+    public UniversalRenderingEngine(File serverBundleFile, String index, BlockingQueue<UniversalRenderingRequest> requestsQueue) {
         this.serverBundleFile = serverBundleFile;
         this.requestsQueue = requestsQueue;
+        this.index = index;
     }
 
     @Override
@@ -72,8 +78,8 @@ public class UniversalRenderingEngine implements Runnable {
                     runningRequests.put(requestId, req);
                     V8Array array = new V8Array(v8);
                     array.push(req.getUrl());
-                    array.push(renderedCallback);
                     array.push(requestId);
+                    array.push(renderedCallback);
                     api.executeVoidFunction("render", array);
 
                     array.release();
@@ -90,6 +96,10 @@ public class UniversalRenderingEngine implements Runnable {
 
     public void addRendringRequest(UniversalRenderingRequest request) {
         this.requestsQueue.add(request);
+    }
+
+    public void join() throws InterruptedException {
+        executingThread.join();
     }
 
     public void stop() throws InterruptedException {
@@ -110,20 +120,30 @@ public class UniversalRenderingEngine implements Runnable {
 
         v8.registerJavaMethod((V8Object receiver, V8Array parameters) -> {
             api = parameters.getObject(0);
-        }, "registerJavaAPI");
+            V8Array clientHtml = new V8Array(v8);
+            clientHtml.push(index);
+            api.executeVoidFunction("setClientHtml", clientHtml);
+            clientHtml.release();
+        }, "registerJavaEngine");
 
         node.require(serverBundleFile.getAbsoluteFile()).release();
 
         v8.registerJavaMethod((received, params) -> {
-            String result = params.getString(0);
-            int requestId = params.getInteger(1);
+            V8Object exception = params.getObject(0);
+            String result = params.getString(1);
+            int requestId = params.getInteger(2);
 
             UniversalRenderingRequest pending = runningRequests.remove(requestId);
             if (pending == null) {
                 throw new IllegalStateException("unregistered request completed");
             }
 
-            pending.getResult().complete(result);
+            if (exception == null) {
+                pending.getResult().complete(result);
+            } else {
+                pending.getResult().completeExceptionally(new UniversalRenderException(exception.toString()));
+            }
+
         }, "renderCallback");
 
         renderedCallback = v8.getObject("renderCallback");
