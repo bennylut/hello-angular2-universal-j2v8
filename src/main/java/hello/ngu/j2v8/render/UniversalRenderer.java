@@ -5,6 +5,9 @@
  */
 package hello.ngu.j2v8.render;
 
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
@@ -13,6 +16,7 @@ import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.attribute.FileTime;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -27,6 +31,7 @@ public class UniversalRenderer implements Closeable {
     private File serverBundlePath;
     private final int numEngines;
     private final String index;
+    private LoadingCache<String, CompletableFuture<String>> renderCache = null;
 
     public UniversalRenderer(File serverBundlePath, String index, int numEngines) {
         this.serverBundlePath = serverBundlePath;
@@ -34,7 +39,25 @@ public class UniversalRenderer implements Closeable {
         this.index = index;
     }
 
+    public void useUrlCache() {
+        this.renderCache = CacheBuilder.newBuilder()
+                .maximumSize(1000)
+                .build(new CacheLoader<String, CompletableFuture<String>>() {
+                    public CompletableFuture<String> load(String url) throws Exception {
+                        return renderers.submit(url);
+                    }
+                });
+    }
+
     public CompletableFuture<String> render(String url) {
+        if (renderCache != null) {
+            try {
+                return renderCache.get(url);
+            } catch (ExecutionException ex) {
+                //this should never happen
+                throw new RuntimeException(ex);
+            }
+        }
         return renderers.submit(url);
     }
 
@@ -52,6 +75,11 @@ public class UniversalRenderer implements Closeable {
         try {
             renderers.stop();
             renderers = null;
+            if (this.renderCache != null) {
+                //reset the cache
+                this.useUrlCache();
+            }
+
         } catch (InterruptedException ex) {
             throw new IOException("interrupted while stopping render engine", ex);
         }

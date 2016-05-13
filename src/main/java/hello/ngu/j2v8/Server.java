@@ -30,6 +30,7 @@ public class Server {
 
         renderer.start();
         renderer.startLiveReload();
+        renderer.useUrlCache();
 
         port(WEB_PORT);
         staticFiles.externalLocation(WEB_PUBLIC_PATH);
