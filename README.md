@@ -11,12 +11,14 @@ This repository contains a simple (and very initial) example of using angular-un
 ##TODO:
 - Fetch J2V8 from maven central
 - Support other platforms
-- Extracting internal implementation details from the angular-universal `server.js` and expose a proper API instead.
+- ~~Extracting internal implementation details from the angular-universal `server.js` and expose a proper API instead.~~
 - ~~Support for rendering multiple requests at once~~
 - Performance tests 
 - Documentation and code-cleanup
-- Remove express dependency (currently the angular2-express-engine is used for rendring)
-- Etc..
+- ~~Remove express dependency (currently the angular2-express-engine is used for rendring)~~
+- Orginize project structure
+- Implement a more complex application
+- Model the Bootstrap configuration object in java in order to remove the need for server.js completely
 
 ##Requirements
 - x64 Linux (tested on ubuntu 16.04)
@@ -28,7 +30,7 @@ This repository contains a simple (and very initial) example of using angular-un
 1. Clone the repository
 2. Install node dependencies (`npm install`)
 3. Build the java server(`mvn clean package`)
-4. Build&Watch angular-universal + angular client side code (`npm run watch`)
+4. Build&Watch angular-universal + angular client side code (`npm start`)
 5. Execute the java server (`mvn -e exec:java -Dexec.mainClass="hello.ngu.j2v8.Server"`)
 6. Open your browser on `http://localhost:3000/app/`
 
