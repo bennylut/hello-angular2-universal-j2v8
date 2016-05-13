@@ -8,7 +8,7 @@ This repository contains a simple (and very initial) example of using angular-un
 - Linux x64 only
 - Multi-Node (each in its own thread) rendring
 - Java level cache for increasing performance (using the cache assumes that the render function is pure)
-- The renderer itself (not including the usage example) has no dependencies other than j2v8
+- The renderer itself (not including the usage example) dependes on J2V8 and Guava
 
 ##TODO:
 - Fetch J2V8 from maven central
