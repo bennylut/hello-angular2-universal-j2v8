@@ -2,7 +2,7 @@
 This repository contains a simple (and very initial) example of using angular-universal with java backend using J2V8.
 
 ##Supported:
-- Rendring using angular universal from java using J2V8
+- Rendering using angular universal from java using J2V8
 - Serving both the application and other rest endpoint from java using sparkjava
 - Basic live-reload support for the universal server build 
 - Linux x64 only
