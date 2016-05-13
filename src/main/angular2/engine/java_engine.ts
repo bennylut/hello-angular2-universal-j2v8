@@ -66,40 +66,9 @@ export class JavaEngine {
         }
     }
 
-    // TODO: find better ways to configure the App initial state
-    // to pay off this technical debt
-    // currently checking for explicit values
-    private _buildClientScripts(html:string, options:any):string {
-        if (!options || !options.buildClientScripts) {
-            return html;
-        }
-        return html
-            .replace(
-                selectorRegExpFactory('preboot'),
-                ((options.preboot === false) ? '' : prebootScript(options))
-            )
-            .replace(
-                selectorRegExpFactory('angular'),
-                ((options.angular === false) ? '' : angularScript(options))
-            )
-            .replace(
-                selectorRegExpFactory('bootstrap'),
-                ((options.bootstrap === false) ? (
-                    bootstrapButton +
-                    bootstrapFunction(options)
-                ) : (
-                    (
-                        (options.client === undefined || options.server === undefined) ?
-                            '' : (options.client === false) ? '' : bootstrapButton
-                    ) +
-                    bootstrapFunction(options) +
-                    ((options.client === false) ? '' : bootstrapApp)
-                ))
-            );
-    }
 }
 
-// THE CODE BELOW COPIED DIRECTLY FROM angular-express-engine
+// the code below COPIED DIRECTLY from angular-express-engine
 
 
 function prebootScript(config):string {

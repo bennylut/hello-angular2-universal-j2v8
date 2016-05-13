@@ -7,13 +7,12 @@ import * as path from 'path';
 import {
     provide,
     enableProdMode,
-    expressEngine,
     REQUEST_URL,
     ORIGIN_URL,
     BASE_URL,
     NODE_ROUTER_PROVIDERS,
     NODE_HTTP_PROVIDERS,
-    ExpressEngineConfig
+    BootloaderConfig
 } from 'angular2-universal';
 
 // Application
@@ -25,7 +24,7 @@ JavaEngine.connect((requestUrl:string) => {
     let baseUrl = '/';
     let url = requestUrl || '/';
 
-    let config:ExpressEngineConfig = {
+    let config:BootloaderConfig = {
         directives: [App],
         platformProviders: [
             provide(ORIGIN_URL, {useValue: 'http://localhost:3000'}),
